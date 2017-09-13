@@ -64,7 +64,7 @@ public class Tile {
 	/// <summary>
 	/// Unregister a callback.
 	/// </summary>
-	public void UnegisterTileTypeChangedCallback(Action<Tile> callback) {
+	public void UnregisterTileTypeChangedCallback(Action<Tile> callback) {
 		cbTileTypeChanged -= callback;
 	}
 	
