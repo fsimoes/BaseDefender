@@ -80,13 +80,15 @@
   <ItemGroup>
     <Compile Include="Assets\Controllers\MouseController.cs" />
     <Compile Include="Assets\Controllers\WorldController.cs" />
-    <Compile Include="Assets\Model\InstalledObject.cs" />
-    <Compile Include="Assets\Model\LooseObject.cs" />
-    <Compile Include="Assets\Model\Tile.cs" />
-    <Compile Include="Assets\Model\World.cs" />
-    <Compile Include="Assets\Utillities\SimplePool.cs" />
+    <Compile Include="Assets\Models\InstalledObject.cs" />
+    <Compile Include="Assets\Models\LooseObject.cs" />
+    <Compile Include="Assets\Models\Tile.cs" />
+    <Compile Include="Assets\Models\World.cs" />
+    <Compile Include="Assets\UI\AutomaticVerticalSize.cs" />
+    <Compile Include="Assets\Utilities\SimplePool.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Assets\Images\Sourced\sources.txt" />
     <None Include="Assets\UI\Kenney Assets\License.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

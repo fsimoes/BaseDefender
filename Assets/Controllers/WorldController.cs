@@ -1,90 +1,90 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿//=======================================================================
+// Copyright Martin "quill18" Glaude 2015.
+//		http://quill18.com
+//=======================================================================
+
+
 using UnityEngine;
-using System;
+using System.Collections;
 
 public class WorldController : MonoBehaviour {
 
-    private static WorldController instance;
+	public static WorldController Instance { get; protected set; }
 
-    public Sprite floorSprite;
+	// The only tile sprite we have right now, so this
+	// it a pretty simple way to handle it.
+	public Sprite floorSprite;
 
-    private World world;
+	// The world and tile data
+	public World World { get; protected set; }
 
-    public static WorldController Instance
-    {
-        get
-        {
-            return instance;
-        }
+	// Use this for initialization
+	void Start () {
+		if(Instance != null) {
+			Debug.LogError("There should never be two world controllers.");
+		}
+		Instance = this;
 
-        protected set
-        {
-            instance = value;
-        }
-    }
+		// Create a world with Empty tiles
+		World = new World();
 
-    public World World
-    {
-        get
-        {
-            return world;
-        }
+		// Create a GameObject for each of our tiles, so they show visually. (and redunt reduntantly)
+		for (int x = 0; x < World.Width; x++) {
+			for (int y = 0; y < World.Height; y++) {
+				// Get the tile data
+				Tile tile_data = World.GetTileAt(x, y);
 
-       protected set
-        {
-            world = value;
-        }
-    }
+				// This creates a new GameObject and adds it to our scene.
+				GameObject tile_go = new GameObject();
+				tile_go.name = "Tile_" + x + "_" + y;
+				tile_go.transform.position = new Vector3( tile_data.X, tile_data.Y, 0);
+				tile_go.transform.SetParent(this.transform, true);
 
-    // Use this for initialization
-    void Start () {
-        if(Instance != null)
-        {
-            //error
-        }
-        Instance = this;
-        //create empty world
-        world = new World();
-        //Create GO to each tiles
-        for (int x = 0; x < world.Width; x++)
-        {
-            for (int y = 0; y < world.Height; y++)
-            {
-                Tile tile_data = world.GetTilesAt(x, y);
+				// Add a sprite renderer, but don't bother setting a sprite
+				// because all the tiles are empty right now.
+				tile_go.AddComponent<SpriteRenderer>();
 
-                GameObject tile_go = new GameObject();
-                tile_go.name = "Tile_" + x + "_" + y;
-                tile_go.transform.position = new Vector3(tile_data.X,tile_data.Y,0);
-                tile_go.transform.SetParent(this.transform,true);
-                //create a empty sprite renderer
-                tile_go.AddComponent<SpriteRenderer>();
+				// Use a lambda to create an anonymous function to "wrap" our callback function
+				tile_data.RegisterTileTypeChangedCallback( (tile) => { OnTileTypeChanged(tile, tile_go); } );
+			}
+		}
 
-                //lambda ()=> is equals to a empty function
-                tile_data.RegisterTileTypeChangedCallback((tile) => { OnTileTypeChanged(tile, tile_go); });
-            }
-        }
-
-        world.randomizeTitles();
-    }
-
-   
-	// Update is called once per frame
-	void Update () {
-      
+		// Shake things up, for testing.
+		World.RandomizeTiles();
 	}
 
-    void OnTileTypeChanged(Tile tile_data, GameObject tile_go)
-    {
-        if (tile_data.Type == Tile.TileType.Floor)
-        {
-            tile_go.GetComponent<SpriteRenderer>().sprite = floorSprite;
-        }else if(tile_data.Type == Tile.TileType.Empty)
-        {
-            tile_go.GetComponent<SpriteRenderer>().sprite = null;
-        }else
-        {
-            Debug.LogError("OnTileTypeChanged - Unrecognized tile type.");
-        }
-    }
+	// Update is called once per frame
+	void Update () {
+
+	}
+
+	// This function should be called automatically whenever a tile's type gets changed.
+	void OnTileTypeChanged(Tile tile_data, GameObject tile_go) {
+
+		if(tile_data.Type == Tile.TileType.Floor) {
+			tile_go.GetComponent<SpriteRenderer>().sprite = floorSprite;
+		}
+		else if( tile_data.Type == Tile.TileType.Empty ) {
+			tile_go.GetComponent<SpriteRenderer>().sprite = null;
+		}
+		else {
+			Debug.LogError("OnTileTypeChanged - Unrecognized tile type.");
+		}
+
+
+	}
+
+	/// <summary>
+	/// Gets the tile at the unity-space coordinates
+	/// </summary>
+	/// <returns>The tile at world coordinate.</returns>
+	/// <param name="coord">Unity World-Space coordinates.</param>
+	public Tile GetTileAtWorldCoord(Vector3 coord) {
+		int x = Mathf.FloorToInt(coord.x);
+		int y = Mathf.FloorToInt(coord.y);
+		
+		return World.GetTileAt(x, y);
+	}
+
+
 }
