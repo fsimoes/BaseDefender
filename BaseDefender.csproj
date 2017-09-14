@@ -13,11 +13,13 @@
     <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Unity Subset v3.5</TargetFrameworkProfile>
-    <CompilerResponseFile></CompilerResponseFile>
+    <CompilerResponseFile>
+    </CompilerResponseFile>
     <UnityProjectType>Game:1</UnityProjectType>
     <UnityBuildTarget>StandaloneWindows64:19</UnityBuildTarget>
     <UnityVersion>2017.1.0f3</UnityVersion>
-    <RootNamespace></RootNamespace>
+    <RootNamespace>
+    </RootNamespace>
     <LangVersion>4</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -80,15 +82,15 @@
   <ItemGroup>
     <Compile Include="Assets\Controllers\MouseController.cs" />
     <Compile Include="Assets\Controllers\WorldController.cs" />
-    <Compile Include="Assets\Models\InstalledObject.cs" />
-    <Compile Include="Assets\Models\LooseObject.cs" />
+    <Compile Include="Assets\Models\Furniture.cs" />
+    <Compile Include="Assets\Models\Inventory.cs" />
     <Compile Include="Assets\Models\Tile.cs" />
     <Compile Include="Assets\Models\World.cs" />
     <Compile Include="Assets\UI\AutomaticVerticalSize.cs" />
     <Compile Include="Assets\Utilities\SimplePool.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Assets\Images\Sourced\sources.txt" />
+    <None Include="Assets\Resources\Images\Sourced\sources.txt" />
     <None Include="Assets\UI\Kenney Assets\License.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

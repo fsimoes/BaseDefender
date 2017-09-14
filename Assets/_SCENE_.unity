@@ -136,6 +136,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   floorSprite: {fileID: 21300000, guid: 2dc0e9faf3ec7014eb5f1085d7fc391e, type: 3}
+  emptySprite: {fileID: 21300000, guid: 59de969a614c4ea4b98a273959e0a49c, type: 3}
 --- !u!4 &127522141
 Transform:
   m_ObjectHideFlags: 0
@@ -730,8 +731,8 @@ Camera:
   m_GameObject: {fileID: 1256515351}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_ClearFlags: 2
+  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 0}
   m_NormalizedViewPortRect:
     serializedVersion: 2
     x: 0
@@ -786,7 +787,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!212 &1303980294
 SpriteRenderer:
   m_ObjectHideFlags: 0

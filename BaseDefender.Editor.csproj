@@ -129,7 +129,7 @@
     <Compile Include="Assets\UI\Editor\AutomaticVerticalSizeEditor.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Assets\Images\Sourced\sources.txt" />
+    <None Include="Assets\Resources\Images\Sourced\sources.txt" />
     <None Include="Assets\UI\Kenney Assets\License.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

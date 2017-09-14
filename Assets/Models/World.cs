@@ -13,7 +13,7 @@ public class World
     // A two-dimensional array to hold our tile data.
     Tile[,] tiles;
 
-    Dictionary<string, InstalledObject> installedObjectPrototypes;
+    Dictionary<string, Furniture> installedObjectPrototypes;
 
     // The tile width of the world.
     public int Width { get; protected set; }
@@ -21,7 +21,7 @@ public class World
     // The tile height of the world
     public int Height { get; protected set; }
 
-    Action<InstalledObject> cbInstalledObjectCreated;
+    Action<Furniture> cbInstalledObjectCreated;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="World"/> class.
@@ -50,14 +50,15 @@ public class World
 
     void CreateInstalledObjectPrototypes()
     {
-        installedObjectPrototypes = new Dictionary<string, InstalledObject>();
+        installedObjectPrototypes = new Dictionary<string, Furniture>();
 
         installedObjectPrototypes.Add("Wall",
-            InstalledObject.CreatePrototype(
+            Furniture.CreatePrototype(
                                 "Wall",
                                 0,  // Impassable
                                 1,  // Width
-                                1  // Height
+                                1,  // Height
+                                true
                             )
         );
     }
@@ -114,7 +115,7 @@ public class World
             return;
         }
 
-        InstalledObject obj = InstalledObject.PlaceInstance(installedObjectPrototypes[objectType], t);
+        Furniture obj = Furniture.PlaceInstance(installedObjectPrototypes[objectType], t);
 
         if (obj == null)
         {
@@ -128,12 +129,12 @@ public class World
         }
     }
 
-    public void RegisterInstalledObjectCreated(Action<InstalledObject> callbackfunc)
+    public void RegisterInstalledObjectCreated(Action<Furniture> callbackfunc)
     {
         cbInstalledObjectCreated += callbackfunc;
     }
 
-    public void UnregisterInstalledObjectCreated(Action<InstalledObject> callbackfunc)
+    public void UnregisterInstalledObjectCreated(Action<Furniture> callbackfunc)
     {
         cbInstalledObjectCreated -= callbackfunc;
     }
