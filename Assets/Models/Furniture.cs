@@ -9,163 +9,156 @@ using System;
 
 // InstalledObjects are things like walls, doors, and furniture (e.g. a sofa)
 
-public class Furniture
-{
+public class Furniture {
 
-    // This represents the BASE tile of the object -- but in practice, large objects may actually occupy
-    // multile tiles.
-    public Tile tile
-    {
-        get; protected set;
-    }
+	// This represents the BASE tile of the object -- but in practice, large objects may actually occupy
+	// multile tiles.
+	public Tile tile {
+		get; protected set;
+	}
 
-    // This "objectType" will be queried by the visual system to know what sprite to render for this object
-    public string objectType
-    {
-        get; protected set;
-    }
+	// This "objectType" will be queried by the visual system to know what sprite to render for this object
+	public string objectType {
+		get; protected set;
+	}
 
-    public bool LinksToNeighbour
-    {
-        get
-        {
-            return linksToNeighbour;
-        }
+	// This is a multipler. So a value of "2" here, means you move twice as slowly (i.e. at half speed)
+	// Tile types and other environmental effects may be combined.
+	// For example, a "rough" tile (cost of 2) with a table (cost of 3) that is on fire (cost of 3)
+	// would have a total movement cost of (2+3+3 = 8), so you'd move through this tile at 1/8th normal speed.
+	// SPECIAL: If movementCost = 0, then this tile is impassible. (e.g. a wall).
+	float movementCost; 
 
-        protected  set
-        {
-            linksToNeighbour = value;
-        }
-    }
+	// For example, a sofa might be 3x2 (actual graphics only appear to cover the 3x1 area, but the extra row is for leg room.)
+	int width;
+	int height;
 
-    // This is a multipler. So a value of "2" here, means you move twice as slowly (i.e. at half speed)
-    // Tile types and other environmental effects may be combined.
-    // For example, a "rough" tile (cost of 2) with a table (cost of 3) that is on fire (cost of 3)
-    // would have a total movement cost of (2+3+3 = 8), so you'd move through this tile at 1/8th normal speed.
-    // SPECIAL: If movementCost = 0, then this tile is impassible. (e.g. a wall).
-    float movementCost;
+	public bool linksToNeighbour{
+		get; protected set;
+	}
 
-    // For example, a sofa might be 3x2 (actual graphics only appear to cover the 3x1 area, but the extra row is for leg room.)
-    int width;
-    int height;
+	Action<Furniture> cbOnChanged;
 
-    bool linksToNeighbour;
+	Func<Tile, bool> funcPositionValidation;
 
-    Action<Furniture> cbOnChanged;
+	// TODO: Implement larger objects
+	// TODO: Implement object rotation
 
-    // TODO: Implement larger objects
-    // TODO: Implement object rotation
-    Func<Tile,bool> funcPositionValidation;
-    protected Furniture()
-    {
+	protected Furniture() {
+		
+	}
 
-    }
+	static public Furniture CreatePrototype( string objectType, float movementCost = 1f, int width=1, int height=1, bool linksToNeighbour=false ) {
+		Furniture obj = new Furniture();
 
-    static public Furniture CreatePrototype(string objectType, float movementCost = 1f, int width = 1, int height = 1, bool linksToNeighbour = false)
-    {
-        Furniture obj = new Furniture();
+		obj.objectType = objectType;
+		obj.movementCost = movementCost;
+		obj.width = width;
+		obj.height = height;
+		obj.linksToNeighbour = linksToNeighbour;
 
-        obj.objectType = objectType;
-        obj.movementCost = movementCost;
-        obj.width = width;
-        obj.height = height;
-        obj.linksToNeighbour = linksToNeighbour;
-        obj.funcPositionValidation = obj.IsValidPostition;
+		obj.funcPositionValidation = obj.__IsValidPosition;
 
-        return obj;
-    }
+		return obj;
+	}
 
-    static public Furniture PlaceInstance(Furniture proto, Tile tile)
-    {
+	static public Furniture PlaceInstance( Furniture proto, Tile tile ) {
+		if( proto.funcPositionValidation(tile) == false ) {
+			Debug.LogError("PlaceInstance -- Position Validity Function returned FALSE.");
+			return null;
+		}
 
-        if(proto.funcPositionValidation(tile) == false)
-        {
-            Debug.LogError("PlaceInstance");
-            return null;
-        }
-        Furniture obj = new Furniture();
+		// We know our placement destination is valid.
 
-        obj.objectType = proto.objectType;
-        obj.movementCost = proto.movementCost;
-        obj.width = proto.width;
-        obj.height = proto.height;
-        obj.linksToNeighbour = proto.linksToNeighbour;
 
-        obj.tile = tile;
+		Furniture obj = new Furniture();
 
-        // FIXME: This assumes we are 1x1!
-        if (tile.PlaceFurniture(obj) == false)
-        {
-            // For some reason, we weren't able to place our object in this tile.
-            // (Probably it was already occupied.)
+		obj.objectType = proto.objectType;
+		obj.movementCost = proto.movementCost;
+		obj.width = proto.width;
+		obj.height = proto.height;
+		obj.linksToNeighbour = proto.linksToNeighbour;
 
-            // Do NOT return our newly instantiated object.
-            // (It will be garbage collected.)
-            return null;
-        }
+		obj.tile = tile;
 
-        if (obj.LinksToNeighbour)
-        {
+		// FIXME: This assumes we are 1x1!
+		if( tile.PlaceFurniture(obj) == false ) {
+			// For some reason, we weren't able to place our object in this tile.
+			// (Probably it was already occupied.)
 
-            int x = tile.X;
-            int y = tile.Y;
-            Tile t;
+			// Do NOT return our newly instantiated object.
+			// (It will be garbage collected.)
+			return null;
+		}
 
-            t = tile.world.GetTileAt(x, y + 1);
-            if (t != null && t.furniture != null && t.furniture.objectType == obj.objectType)
-            {
-                t.furniture.cbOnChanged(t.furniture);
-            }
-            t = tile.world.GetTileAt(x + 1, y);
-            if (t != null && t.furniture != null && t.furniture.objectType == obj.objectType)
-            {
-                t.furniture.cbOnChanged(t.furniture);
-            }
-            t = tile.world.GetTileAt(x, y - 1);
-            if (t != null && t.furniture != null && t.furniture.objectType == obj.objectType)
-            {
-                t.furniture.cbOnChanged(t.furniture);
-            }
-            t = tile.world.GetTileAt(x - 1, y);
-            if (t != null && t.furniture != null && t.furniture.objectType == obj.objectType)
-            {
-                t.furniture.cbOnChanged(t.furniture);
-            }
-        }
+		if(obj.linksToNeighbour) {
+			// This type of furniture links itself to its neighbours,
+			// so we should inform our neighbours that they have a new
+			// buddy.  Just trigger their OnChangedCallback.
 
-        return obj;
-    }
+			Tile t;
+			int x = tile.X;
+			int y = tile.Y;
 
-    public void RegisterOnChangedCallback(Action<Furniture> callbackFunc)
-    {
-        cbOnChanged += callbackFunc;
-    }
+			t = tile.world.GetTileAt(x, y+1);
+			if(t != null && t.furniture != null && t.furniture.objectType == obj.objectType) {
+				// We have a Northern Neighbour with the same object type as us, so
+				// tell it that it has changed by firing is callback.
+				t.furniture.cbOnChanged(t.furniture);
+			}
+			t = tile.world.GetTileAt(x+1, y);
+			if(t != null && t.furniture != null && t.furniture.objectType == obj.objectType) {
+				t.furniture.cbOnChanged(t.furniture);
+			}
+			t = tile.world.GetTileAt(x, y-1);
+			if(t != null && t.furniture != null && t.furniture.objectType == obj.objectType) {
+				t.furniture.cbOnChanged(t.furniture);
+			}
+			t = tile.world.GetTileAt(x-1, y);
+			if(t != null && t.furniture != null && t.furniture.objectType == obj.objectType) {
+				t.furniture.cbOnChanged(t.furniture);
+			}
 
-    public void UnregisterOnChangedCallback(Action<Furniture> callbackFunc)
-    {
-        cbOnChanged -= callbackFunc;
-    }
+		}
 
-    public bool IsValidPostition(Tile t)
-    {
-        if(t.Type != TileType.Floor)
-        {
-            return false;
-        }
+		return obj;
+	}
 
-        if(t.furniture != null)
-        {
-            return false;
-        }
-        return true;
-    }
+	public void RegisterOnChangedCallback(Action<Furniture> callbackFunc) {
+		cbOnChanged += callbackFunc;
+	}
 
-    public bool IsValidPosition_Door(Tile t)
-    {
-        if(IsValidPostition(t) == false)
-        {
-            return false;
-        }
-        return true;
-    }
+	public void UnregisterOnChangedCallback(Action<Furniture> callbackFunc) {
+		cbOnChanged -= callbackFunc;
+	}
+
+	public bool IsValidPosition(Tile t) {
+		return funcPositionValidation(t);
+	}
+
+	// FIXME: These functions should never be called directly,
+	// so they probably shouldn't be public functions of Furniture
+	public bool __IsValidPosition(Tile t) {
+		// Make sure tile is FLOOR
+		if( t.Type != TileType.Floor ) {
+			return false;
+		}
+
+		// Make sure tile doesn't already have furniture
+		if( t.furniture != null ) {
+			return false;
+		}
+
+		return true;
+	}
+
+	public bool __IsValidPosition_Door(Tile t) {
+		if(__IsValidPosition(t) == false)
+			return false;
+
+		// Make sure we have a pair of E/W walls or N/S walls
+
+		return true;
+	}
+
 }
